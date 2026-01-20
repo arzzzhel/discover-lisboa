@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Discover Lisboa{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h2 class="dashboard-title">Minha Dashboard</h2>
+            <p class="dashboard-subtitle">Bem-vindo, {{ current_user.username }}! Gerir os teus conteúdos.</p>
+        </div>
+        <a href="{{ url_for('main.new_content') }}" class="btn-primary btn-large">+ Criar Conteúdo</a>
+    </div>
+    
+    <!-- Pesquisa rápida -->
+    <div class="quick-search-section">
+        <h3>Adicionar Local Rapidamente</h3>
+        <div class="quick-search-box">
+            <input type="text" id="quickSearchInput" class="form-input" 
+                   placeholder="Pesquisar local (ex: Castelo de São Jorge)">
+            <button class="btn-search" onclick="quickSearch()">Pesquisar e Adicionar</button>
+        </div>
+        <p class="form-hint">Pesquisa um local e serás redirecionado para o formulário com as coordenadas preenchidas.</p>
+    </div>
+    
+    <!-- Estatísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ contents|length }}</div>
+            <div class="stat-label">Conteúdos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ contents|selectattr('category', 'equalto', 'restaurante')|list|length }}</div>
+            <div class="stat-label">Restaurantes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ contents|selectattr('category', 'equalto', 'museu')|list|length }}</div>
+            <div class="stat-label">Museus</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ contents|selectattr('category', 'equalto', 'monumento')|list|length }}</div>
+            <div class="stat-label">Monumentos</div>
+        </div>
+    </div>
+    
+    <!-- Filtros e pesquisa -->
+    <div class="dashboard-controls">
+        <div class="dashboard-filters">
+            <button class="dashboard-filter-btn active" onclick="filterDashboardContents('all')">Todos</button>
+            <button class="dashboard-filter-btn" onclick="filterDashboardContents('restaurante')">Restaurantes</button>
+            <button class="dashboard-filter-btn" onclick="filterDashboardContents('museu')">Museus</button>
+            <button class="dashboard-filter-btn" onclick="filterDashboardContents('monumento')">Monumentos</button>
+            <button class="dashboard-filter-btn" onclick="filterDashboardContents('miradouro')">Miradouros</button>
+        </div>
+        <div class="dashboard-search">
+            <input type="text" id="dashboardSearch" class="form-input" 
+                   placeholder="Pesquisar nos meus conteúdos...">
+        </div>
+    </div>
+    
+    <!-- Lista de conteúdos -->
+    {% if contents %}
+    <div class="dashboard-content-grid">
+        {% for content in contents %}
+        <div class="dashboard-content-card" data-category="{{ content.category }}">
+            <!-- Thumbnail -->
+            <div class="card-thumbnail">
+                {% if content.media_type == 'image' %}
+                    <img src="{{ url_for('static', filename='uploads/' + content.media_filename) }}" 
+                         alt="{{ content.title }}">
+                {% elif content.media_type == 'video' %}
+                    <video>
+                        <source src="{{ url_for('static', filename='uploads/' + content.media_filename) }}">
+                    </video>
+                    <div class="video-overlay">▶</div>
+                {% elif content.media_type == 'audio' %}
+                    <div class="audio-placeholder">
+                        <span>🎵</span>
+                    </div>
+                {% endif %}
+                <span class="card-category" style="background-color: 
+                    {% if content.category == 'restaurante' %}#e74c3c
+                    {% elif content.category == 'museu' %}#3498db
+                    {% elif content.category == 'monumento' %}#9b59b6
+                    {% elif content.category == 'miradouro' %}#f39c12
+                    {% else %}#2ecc71{% endif %}">
+                    {{ content.category }}
+                </span>
+            </div>
+            
+            <!-- Informação -->
+            <div class="card-info">
+                <h3>{{ content.title }}</h3>
+                <p>{{ content.description[:80] }}{% if content.description|length > 80 %}...{% endif %}</p>
+                {% if content.location_name %}
+                    <p class="card-location">📍 {{ content.location_name[:50] }}</p>
+                {% endif %}
+                <p class="card-date">{{ content.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+            
+            <!-- Ações -->
+            <div class="card-actions">
+                <a href="{{ url_for('main.edit_content', id=content.id) }}" class="btn-edit">Editar</a>
+                <form id="deleteForm{{ content.id }}" method="POST" 
+                      action="{{ url_for('main.delete_content', id=content.id) }}" style="display: inline;">
+                    <button type="button" class="btn-delete" onclick="confirmDelete({{ content.id }})">Eliminar</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>Ainda não tens conteúdos</h3>
+        <p>Começa a adicionar os teus locais favoritos de Lisboa!</p>
+        <a href="{{ url_for('main.new_content') }}" class="btn-primary btn-large">Criar Primeiro Conteúdo</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

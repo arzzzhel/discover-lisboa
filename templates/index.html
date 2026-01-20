@@ -1,0 +1,109 @@
+{# 
+  Template da página inicial.
+  - Usa herança de templates (extends) para reutilizar o layout do base.html
+  - Renderiza botões e secções conforme o estado de autenticação e conteúdos disponíveis
+#}
+{% extends "base.html" %}
+
+{# Define o título da página (substitui o bloco "title" do base.html) #}
+{% block title %}Início - Discover Lisboa{% endblock %}
+
+{# Conteúdo principal da página inicial (substitui o bloco "content" do base.html) #}
+{% block content %}
+
+<!-- Secção Hero -->
+<div class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Descobre Lisboa</h1>
+            <p class="hero-subtitle">
+                O teu guia turístico e gastronómico interativo da capital portuguesa
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('main.map_view') }}" class="btn-large btn-primary">Explorar Mapa</a>
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.register') }}" class="btn-large btn-secondary">Criar Conta</a>
+                {% else %}
+                    <a href="{{ url_for('main.dashboard') }}" class="btn-large btn-secondary">Minha Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secção Funcionalidades -->
+
+<div class="container section">
+    <h2 class="section-title">Funcionalidades</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Mapa Interativo</h3>
+            <p>Explora Lisboa através de um mapa interativo com marcadores de locais turísticos e gastronómicos.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🍽️</div>
+            <h3>Gastronomia</h3>
+            <p>Descobre os melhores restaurantes e pratos típicos da cidade.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🏛️</div>
+            <h3>Pontos Turísticos</h3>
+            <p>Visita museus, monumentos e miradouros emblemáticos de Lisboa.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📸</div>
+            <h3>Multimédia</h3>
+            <p>Conteúdos enriquecidos com imagens, vídeos e áudio.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>Pesquisa Inteligente</h3>
+            <p>Encontra locais facilmente com pesquisa tipo Google Maps.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>Contribui</h3>
+            <p>Regista-te e adiciona os teus locais favoritos de Lisboa.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Conteudos em destaque - dinamico -->
+{% if featured_contents %}
+<div class="container section">
+    <h2 class="section-title">Conteúdos em Destaque</h2>
+    <div class="content-grid">
+        {% for content in featured_contents %}
+        <div class="content-card">
+            {% if content.media_type == 'image' %}
+                <img src="{{ url_for('static', filename='uploads/' + content.media_filename) }}" 
+                     alt="{{ content.title }}" class="content-image">
+            {% elif content.media_type == 'video' %}
+                <video class="content-video" controls>
+                    <source src="{{ url_for('static', filename='uploads/' + content.media_filename) }}">
+                </video>
+            {% endif %}
+            <div class="content-info">
+                <span class="content-category">{{ content.category }}</span>
+                <h3>{{ content.title }}</h3>
+                <p>{{ content.description[:100] }}{% if content.description|length > 100 %}...{% endif %}</p>
+                {% if content.location_name %}
+                    <p class="content-location">📍 {{ content.location_name }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Secção final -->
+<div class="cta-section">
+    <div class="container">
+        <h2>Pronto para Explorar Lisboa?</h2>
+        <p>Junta-te à comunidade e começa a descobrir os melhores locais da cidade.</p>
+        <a href="{{ url_for('main.map_view') }}" class="btn-large btn-primary">Ver Mapa Completo</a>
+    </div>
+</div>
+{% endblock %}

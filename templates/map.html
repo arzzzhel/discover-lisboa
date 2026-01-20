@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Mapa Interativo - Discover Lisboa{% endblock %}
+
+{% block content %}
+<div class="map-container">
+    <!-- Barra de pesquisa flutuante -->
+    <div class="map-search-bar">
+        <input type="text" id="mapSearchInput" class="map-search-input" 
+               placeholder="Pesquisar local em Lisboa... (ex: Castelo de São Jorge)">
+        <button class="map-search-btn" onclick="searchOnMap()">Pesquisar</button>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="map-filters">
+        <button class="filter-btn active" data-category="all" onclick="filterContents('all')">Todos</button>
+        <button class="filter-btn" data-category="restaurante" onclick="filterContents('restaurante')">Restaurantes</button>
+        <button class="filter-btn" data-category="museu" onclick="filterContents('museu')">Museus</button>
+        <button class="filter-btn" data-category="monumento" onclick="filterContents('monumento')">Monumentos</button>
+        <button class="filter-btn" data-category="miradouro" onclick="filterContents('miradouro')">Miradouros</button>
+    </div>
+    
+    <!-- Mapa -->
+    <div id="mainMap" class="main-map"></div>
+    
+    <!-- Legenda -->
+    <div class="map-legend">
+        <h4>Legenda</h4>
+        <div class="legend-item"><span class="legend-marker" style="background: #e74c3c;">●</span> Restaurante</div>
+        <div class="legend-item"><span class="legend-marker" style="background: #3498db;">●</span> Museu</div>
+        <div class="legend-item"><span class="legend-marker" style="background: #9b59b6;">●</span> Monumento</div>
+        <div class="legend-item"><span class="legend-marker" style="background: #f39c12;">●</span> Miradouro</div>
+        <div class="legend-item"><span class="legend-marker" style="background: #2ecc71;">●</span> Outro</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script>
+    // Dados dos conteúdos (passados do backend)
+    const contentsData = {{ contents|tojson }};
+    
+    // Inicializar mapa
+    initMainMap(contentsData);
+</script>
+{% endblock %}

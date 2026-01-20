@@ -1,0 +1,57 @@
+{# 
+  Template da página de registo de utilizadores.
+  - Permite a criação de conta com username e email
+  - O processo de definição de password é feito posteriormente,
+    após validação do email
+#}
+{% extends "base.html" %}
+
+{# Define o título da página #}
+{% block title %}Registar - Discover Lisboa{% endblock %}
+
+{# Conteúdo principal da página de registo #}
+{% block content %}
+
+<!-- Caixa central de autenticacao -->
+<div class="container auth-container">
+    <div class="auth-box">
+        <h2 class="auth-title">Criar Conta</h2>
+        <p class="auth-subtitle">Junta-te à comunidade Discover Lisboa</p>
+        
+        <!-- Formulario de registo -->
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" 
+                       class="form-input" required minlength="3" 
+                       placeholder="Escolhe um username">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" 
+                       class="form-input" required 
+                       placeholder="o-teu-email@exemplo.com">
+            </div>
+            
+            <button type="submit" class="btn-submit">Registar</button>
+        </form>
+        
+        <p class="auth-footer">
+            Já tens conta? <a href="{{ url_for('auth.login') }}">Faz login</a>
+        </p>
+        
+        <!-- Caixa informativa -->
+        <div class="info-box">
+            <strong>Como funciona:</strong>
+            <ol>
+                <li>Regista-te com username e email</li>
+                <li>Recebes um email de validação</li>
+                <li>Clica no link do email</li>
+                <li>Define a tua password</li>
+                <li>Faz login e começa a explorar!</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}
